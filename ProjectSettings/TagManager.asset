@@ -8,6 +8,11 @@ TagManager:
   - pickup
   - ghost
   - speed
+  - enter1
+  - enter2
+  - exit1
+  - berry
+  - exit2
   layers:
   - Default
   - TransparentFX

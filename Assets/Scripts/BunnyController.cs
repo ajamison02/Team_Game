@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class BunnyController : MonoBehaviour
 {
-
     public float speed;
     private float boostTimer;
 
@@ -22,11 +21,14 @@ public class BunnyController : MonoBehaviour
     private int health;
 
     public Camera MainCamera;
-    public Camera LevelTwoCamera;
 
-    public float timeInvincible = 3.0f;
-    bool isInvincible;
-    float invincibleTimer;
+    public Animator animator;
+
+    public bool Vertical;
+    public bool Horizontal;
+    int direction = 1;
+
+    Vector2 lookDirection = new Vector2(1,0);
    
    
     // Start is called before the first frame update
@@ -39,11 +41,10 @@ public class BunnyController : MonoBehaviour
         health = 3;
         SetHealthText ();
 
-        MainCamera.enabled = true;
-        LevelTwoCamera.enabled = false;
-
         boostTimer = 0;
         boosting = false;
+
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -65,7 +66,7 @@ public class BunnyController : MonoBehaviour
 
     void Update()
     {
-          if (Input.GetKey(KeyCode.R))
+        if (Input.GetKey(KeyCode.R))
         {
             if (gameOver == true)
             {
@@ -83,13 +84,22 @@ public class BunnyController : MonoBehaviour
                 boosting = false;
             }
         }
-
-        if (isInvincible)
-        {
-            invincibleTimer -= Time.deltaTime;
-            if (invincibleTimer < 0)
-                isInvincible = false;
-        }
+        
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+                
+        Vector2 move = new Vector2(horizontal, vertical);
+        
+        if(!Mathf.Approximately(move.x, 0.0f) || !Mathf.Approximately(move.y, 0.0f))
+            {
+                lookDirection.Set(move.x, move.y);
+                lookDirection.Normalize();
+            }
+        
+        animator.SetFloat("Move X", lookDirection.x);
+        animator.SetFloat("Move Y", lookDirection.y);
+        animator.SetFloat("Speed", move.magnitude);
+        
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -103,7 +113,7 @@ public class BunnyController : MonoBehaviour
 
         if (other.gameObject.CompareTag("Enemy"))
         {
-            other.gameObject.SetActive (false);
+            /*other.gameObject.SetActive (false);*/
             health = health - 1;
             SetHealthText ();
         }
@@ -115,37 +125,48 @@ public class BunnyController : MonoBehaviour
             speed = 10;
         }
 
-        if (other.gameObject.CompareTag("ghost"))
+        if (other.gameObject.CompareTag("berry"))
         {
             other.gameObject.SetActive (false);
-            if (health < 0)
-            {
-                if (isInvincible)
-                {
-                    return;
-            
-                    isInvincible = true;
-                    invincibleTimer = timeInvincible;
-                }
-            }
+            score = score + 3;
+            SetScoreText ();
+        }
+
+        if (other.gameObject.CompareTag("enter1"))
+        {
+            gameObject.transform.position = new Vector3(10, 0.0f, -10);
+        }
+
+        if (other.gameObject.CompareTag("exit1"))
+        {
+            gameObject.transform.position = new Vector3(-10, 0.0f, -10);
+        }
+
+        if (other.gameObject.CompareTag("enter2"))
+        {
+            gameObject.transform.position = new Vector3(-42, -3, -6);
+        }
+
+        if (other.gameObject.CompareTag("exit2"))
+        {
+            gameObject.transform.position = new Vector3(-42, 4, -6);
         }
     }
     void SetScoreText ()
     {
         scoreText.text = "Score: " + score.ToString ();
 
-        if (score == 10)
+        if (score == 36)
         {
-            gameObject.transform.position = new Vector3(-42, 0.0f, -10);
-
-            MainCamera.enabled = false;
-            LevelTwoCamera.enabled = true;
+            gameObject.transform.position = new Vector3(-42, 0.0f, -6);
+            MainCamera.transform.position = new Vector3(-42, 0.0f, -8);
         }
 
-        if (score == 20)
+        if (score == 72)
         {
             //winText.text = "You Win!";
-            Destroy(gameObject);
+            //Destroy(gameObject);
+            gameOver = true;
         }
         
     }
@@ -156,17 +177,9 @@ public class BunnyController : MonoBehaviour
 
         if (health <= 0)
         {
-            //loseText.text = "You Lose!";
-            Destroy(gameObject);
-        }
-
-        if (health < 0)
-        {
-            if (isInvincible)
-                return;
-            
-            isInvincible = true;
-            invincibleTimer = timeInvincible;
+            speed = 0;
+            gameOver = true;
+            health = 0;
         }
     }
 }
