@@ -26,10 +26,15 @@ public class BunnyController : MonoBehaviour
 
     public bool Vertical;
     public bool Horizontal;
-    int direction = 1;
+
+    public SpriteRenderer loseImage = null;
+    public SpriteRenderer loseImage2 = null;
+    public SpriteRenderer winImage = null;
+
+    public SpriteRenderer LoseMusic;
+    public SpriteRenderer Background;
 
     Vector2 lookDirection = new Vector2(1,0);
-   
    
     // Start is called before the first frame update
     void Start()
@@ -44,7 +49,13 @@ public class BunnyController : MonoBehaviour
         boostTimer = 0;
         boosting = false;
 
-        animator = GetComponent<Animator>();
+        animator = GetComponent<Animator> ();
+
+        winImage.gameObject.SetActive (false);
+        loseImage.gameObject.SetActive (false);
+        loseImage2.gameObject.SetActive (false);
+        LoseMusic.gameObject.SetActive (false);
+        Background.gameObject.SetActive (true);
     }
 
     // Update is called once per frame
@@ -71,6 +82,7 @@ public class BunnyController : MonoBehaviour
             if (gameOver == true)
             {
               SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+              Debug.Log("Key is Working");
             }
         }
 
@@ -90,7 +102,7 @@ public class BunnyController : MonoBehaviour
                 
         Vector2 move = new Vector2(horizontal, vertical);
         
-        if(!Mathf.Approximately(move.x, 0.0f) || !Mathf.Approximately(move.y, 0.0f))
+        if (!Mathf.Approximately(move.x, 0.0f) || !Mathf.Approximately(move.y, 0.0f))
             {
                 lookDirection.Set(move.x, move.y);
                 lookDirection.Normalize();
@@ -99,14 +111,14 @@ public class BunnyController : MonoBehaviour
         animator.SetFloat("Move X", lookDirection.x);
         animator.SetFloat("Move Y", lookDirection.y);
         animator.SetFloat("Speed", move.magnitude);
-        
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.CompareTag("pickup"))
         {
-            other.gameObject.SetActive (false);
+            //other.gameObject.SetActive (false);
+            other.gameObject.transform.position = new Vector3(0, 10, 0);
             score = score + 1;
             SetScoreText ();
         }
@@ -120,14 +132,16 @@ public class BunnyController : MonoBehaviour
 
         if (other.gameObject.CompareTag("speed"))
         {
-            other.gameObject.SetActive (false);
+            //other.gameObject.SetActive (false);
+            other.gameObject.transform.position = new Vector3(0, 10, 0);
             boosting = true;
             speed = 10;
         }
 
         if (other.gameObject.CompareTag("berry"))
         {
-            other.gameObject.SetActive (false);
+            //other.gameObject.SetActive (false);
+            other.gameObject.transform.position = new Vector3(0, 10, 0);
             score = score + 3;
             SetScoreText ();
         }
@@ -156,17 +170,17 @@ public class BunnyController : MonoBehaviour
     {
         scoreText.text = "Score: " + score.ToString ();
 
-        if (score == 36)
+        if (score == 1)
         {
             gameObject.transform.position = new Vector3(-42, 0.0f, -6);
             MainCamera.transform.position = new Vector3(-42, 0.0f, -8);
         }
 
-        if (score == 72)
+        if (score == 2)
         {
-            //winText.text = "You Win!";
-            //Destroy(gameObject);
             gameOver = true;
+            gameObject.SetActive (false);
+            winImage.gameObject.SetActive (true);
         }
         
     }
@@ -177,9 +191,16 @@ public class BunnyController : MonoBehaviour
 
         if (health <= 0)
         {
-            speed = 0;
             gameOver = true;
             health = 0;
+
+            loseImage.gameObject.SetActive (true);
+            loseImage2.gameObject.SetActive (true);
+
+            gameObject.SetActive (false);
+
+            Background.gameObject.SetActive (false);
+            LoseMusic.gameObject.SetActive (true);
         }
     }
 }
