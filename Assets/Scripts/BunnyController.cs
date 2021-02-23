@@ -68,15 +68,15 @@ public class BunnyController : MonoBehaviour
         Vector2 movement = new Vector2 (moveHorizontal, moveVertical);
 
         rb2d.AddForce (movement * speed);
-
-        if (Input.GetKey("escape"))
-        {
-            Application.Quit();
-        }
     }
 
     void Update()
     {
+        if (Input.GetKey("escape"))
+        {
+            Application.Quit();
+        }
+        
         if (Input.GetKey(KeyCode.R))
         {
             if (gameOver == true)
@@ -111,6 +111,11 @@ public class BunnyController : MonoBehaviour
         animator.SetFloat("Move X", lookDirection.x);
         animator.SetFloat("Move Y", lookDirection.y);
         animator.SetFloat("Speed", move.magnitude);
+
+        if (Input.GetKey("escape"))
+        {
+            Application.Quit();
+        }
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -170,13 +175,13 @@ public class BunnyController : MonoBehaviour
     {
         scoreText.text = "Score: " + score.ToString ();
 
-        if (score == 1)
+        if (score == 36)
         {
             gameObject.transform.position = new Vector3(-42, 0.0f, -6);
             MainCamera.transform.position = new Vector3(-42, 0.0f, -8);
         }
 
-        if (score == 2)
+        if (score == 72)
         {
             gameOver = true;
             gameObject.SetActive (false);
@@ -201,6 +206,7 @@ public class BunnyController : MonoBehaviour
 
             Background.gameObject.SetActive (false);
             LoseMusic.gameObject.SetActive (true);
+
         }
     }
 }
